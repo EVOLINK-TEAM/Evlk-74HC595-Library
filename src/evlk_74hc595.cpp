@@ -19,15 +19,22 @@ namespace _EVLK_74HC595_
     uint8_t *hc595::getBuffer(nopin_size_t &pin) { return isIn(pin) ? &Buffer[pin.Idx / 8] : NULL; }
     hc595::hc595(nopin_size_t DS, nopin_size_t ST, nopin_size_t SH, uint8_t num)
         : nopinRegister(num, 8), Num(num), Buffer(initBuffer(num)),
-          DS(DS), ST(ST), SH(SH){};
+          DS(DS), ST(ST), SH(SH){
+            DS.mode(OUTPUT);
+            ST.mode(OUTPUT);
+            SH.mode(OUTPUT);};
     hc595::hc595(nopin_size_t DS, nopin_size_t ST, nopin_size_t SH, uint8_t num, pin_size_t *maps)
         : nopinRegister(num, 8, maps), Num(num), Buffer(initBuffer(num)),
-          DS(DS), ST(ST), SH(SH){};
+          DS(DS), ST(ST), SH(SH){
+            DS.mode(OUTPUT);
+            ST.mode(OUTPUT);
+            SH.mode(OUTPUT);};
     hc595::hc595(nopin_size_t DS, nopin_size_t ST, nopin_size_t SH, uint8_t num, pin_size_t maphead)
         : nopinRegister(num, 8, maphead), Num(num), Buffer(initBuffer(num)),
           DS(DS), ST(ST), SH(SH){
-
-                          };
+            DS.mode(OUTPUT);
+            ST.mode(OUTPUT);
+            SH.mode(OUTPUT);};
     hc595::~hc595()
     {
         if (Buffer)
