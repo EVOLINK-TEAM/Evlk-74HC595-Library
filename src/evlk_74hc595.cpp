@@ -1,11 +1,14 @@
 #include "evlk_74hc595.h"
 
-#define SER_U DS.dwrite(HIGH)
-#define SER_D DS.dwrite(LOW)
-#define SCK_U SH.dwrite(HIGH)
-#define SCK_D SH.dwrite(LOW)
-#define RCK_U ST.dwrite(HIGH)
-#define RCK_D ST.dwrite(LOW)
+#define pMode(pin, val) (pin).mode((PinMode)(val))
+#define dWrite(pin, val) (pin).dwrite((PinStatus)(val))
+
+#define SER_U dWrite(DS,HIGH)
+#define SER_D dWrite(DS,LOW)
+#define SCK_U dWrite(SH,HIGH)
+#define SCK_D dWrite(SH,LOW)
+#define RCK_U dWrite(ST,HIGH)
+#define RCK_D dWrite(ST,LOW)
 
 namespace _EVLK_74HC595_
 {
@@ -19,22 +22,28 @@ namespace _EVLK_74HC595_
     uint8_t *hc595::getBuffer(nopin_size_t &pin) { return isIn(pin) ? &Buffer[pin.Idx / 8] : NULL; }
     hc595::hc595(nopin_size_t DS, nopin_size_t ST, nopin_size_t SH, uint8_t num)
         : nopinRegister(num, 8), Num(num), Buffer(initBuffer(num)),
-          DS(DS), ST(ST), SH(SH){
-            DS.mode(OUTPUT);
-            ST.mode(OUTPUT);
-            SH.mode(OUTPUT);};
+          DS(DS), ST(ST), SH(SH)
+    {
+        pMode(DS, OUTPUT);
+        pMode(ST, OUTPUT);
+        pMode(SH, OUTPUT);
+    };
     hc595::hc595(nopin_size_t DS, nopin_size_t ST, nopin_size_t SH, uint8_t num, pin_size_t *maps)
         : nopinRegister(num, 8, maps), Num(num), Buffer(initBuffer(num)),
-          DS(DS), ST(ST), SH(SH){
-            DS.mode(OUTPUT);
-            ST.mode(OUTPUT);
-            SH.mode(OUTPUT);};
+          DS(DS), ST(ST), SH(SH)
+    {
+        pMode(DS, OUTPUT);
+        pMode(ST, OUTPUT);
+        pMode(SH, OUTPUT);
+    };
     hc595::hc595(nopin_size_t DS, nopin_size_t ST, nopin_size_t SH, uint8_t num, pin_size_t maphead)
         : nopinRegister(num, 8, maphead), Num(num), Buffer(initBuffer(num)),
-          DS(DS), ST(ST), SH(SH){
-            DS.mode(OUTPUT);
-            ST.mode(OUTPUT);
-            SH.mode(OUTPUT);};
+          DS(DS), ST(ST), SH(SH)
+    {
+        pMode(DS, OUTPUT);
+        pMode(ST, OUTPUT);
+        pMode(SH, OUTPUT);
+    };
     hc595::~hc595()
     {
         if (Buffer)
@@ -67,21 +76,23 @@ namespace _EVLK_74HC595_
         else
             SER_D;
         SCK_U;
-        delay(1);
+        delayMicroseconds(1);
         SCK_D;
     };
     void hc595::_latch()
     {
         RCK_U;
-        delay(1);
+        delayMicroseconds(1);
         RCK_D;
     };
     void hc595::_send(uint8_t data)
     {
         for (size_t i = 0; i < 8; i++)
         {
-            bool b = data >> 7;
-            data = data << 1;
+            // bool b = data >> 7;
+            // data = data << 1;
+            bool b = data & 1;
+            data = data >> 1;
             _shift(b);
         }
     };
@@ -102,11 +113,11 @@ namespace _EVLK_74HC595_
     void hc595::updateBuffer()
     {
         for (size_t i = 0; i < Num; i++)
-            _send(Buffer[i]);
+            _send(Buffer[Num - i - 1]);
         _latch();
     };
 
-    void hc595::digitalWrite(nopin_size_t pin, PinStatus val)
+    void hc595::digitalWrite(nopin_size_t &pin, PinStatus val)
     {
         uint8_t *buffer = getBuffer(pin);
         if (!buffer)
@@ -118,7 +129,7 @@ namespace _EVLK_74HC595_
             *buffer &= ~mask;
         updateBuffer();
     };
-    PinStatus hc595::digitalRead(nopin_size_t pin)
+    PinStatus hc595::digitalRead(nopin_size_t &pin)
     {
         uint8_t *buffer = getBuffer(pin);
         if (!buffer)
@@ -126,6 +137,6 @@ namespace _EVLK_74HC595_
         uint8_t mask = 1 << UnitNum >> unitNum(pin);
         return (PinStatus)(*buffer & mask);
     };
-    void hc595::analogWrite(nopin_size_t pin, int val) { return digitalWrite(pin, (PinStatus)(bool)val); };
-    int hc595::analogRead(nopin_size_t pin) { return digitalRead(pin) == HIGH ? ((1 << analogResolution) - 1) : 0; };
+    void hc595::analogWrite(nopin_size_t &pin, int val) { return digitalWrite(pin, (PinStatus)(bool)val); };
+    int hc595::analogRead(nopin_size_t &pin) { return digitalRead(pin) == HIGH ? ((1 << analogResolution) - 1) : 0; };
 }
