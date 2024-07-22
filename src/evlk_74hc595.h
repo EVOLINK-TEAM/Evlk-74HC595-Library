@@ -30,6 +30,7 @@ namespace _EVLK_74HC595_
         hc595(nopin_size_t DS, nopin_size_t ST, nopin_size_t SH, uint8_t num, pin_size_t *maps);
         hc595(nopin_size_t DS, nopin_size_t ST, nopin_size_t SH, uint8_t num, pin_size_t maphead);
         ~hc595();
+        void Begin();            //init driver pins
         void shift(bool bit);    // 向寄存器中输入1bit
         void send(uint8_t data); // send = 8 * shift
         void clearBuffer();      //! If use real MR pin
@@ -44,8 +45,6 @@ namespace _EVLK_74HC595_
 
         void analogReference(uint8_t mode) override {};            //! NOT USE
         void pinMode(nopin_size_t &pin, PinMode mode) override {}; //! NOT USE
-
-        friend int ::main();
     };
 };
 
