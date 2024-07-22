@@ -37,13 +37,15 @@ namespace _EVLK_74HC595_
 
         using nopinRegister::digitalWrite;
         using nopinRegister::pinMode;
-        void digitalWrite(nopin_size_t pin, PinStatus val) override;
-        PinStatus digitalRead(nopin_size_t pin) override;
-        void analogWrite(nopin_size_t pin, int val) override; //! Same as digitalWrite
-        int analogRead(nopin_size_t pin) override;            //! Same as digitalRead
+        void digitalWrite(nopin_size_t &pin, PinStatus val) override;
+        PinStatus digitalRead(nopin_size_t &pin) override;
+        void analogWrite(nopin_size_t &pin, int val) override; //! Same as digitalWrite
+        int analogRead(nopin_size_t &pin) override;            //! Same as digitalRead
 
-        void analogReference(uint8_t mode) override {};           //! NOT USE
-        void pinMode(nopin_size_t pin, PinMode mode) override {}; //! NOT USE
+        void analogReference(uint8_t mode) override {};            //! NOT USE
+        void pinMode(nopin_size_t &pin, PinMode mode) override {}; //! NOT USE
+
+        friend int ::main();
     };
 };
 
