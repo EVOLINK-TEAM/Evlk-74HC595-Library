@@ -1,31 +1,29 @@
-#ifndef _EVLK_74HC595_H_
-#define _EVLK_74HC595_H_
+#ifndef _EVLK_SHIFTREG_H_
+#define _EVLK_SHIFTREG_H_
 
 #include "Arduino.h"
 #include "evlk_nopins.h"
 
-namespace _EVLK_74HC595_ {
+namespace _EVLK_SHIFTREG_ {
 
-class hc595 : public _EVLK_NOPINS_::nopinRegister {
+class shiftreg : public _EVLK_NOPINS_::nopinRegister {
   private:
     using nopin_size_t = _EVLK_NOPINS_::nopin_size_t;
-    nopin_size_t DS;
-    nopin_size_t ST;
-    nopin_size_t SH;
+    const uint8_t bufferNum;
 
-    pin_size_t *initBuffer(uint8_t num);
+  protected:
+    virtual void _shift(bool bit) = 0;
+    virtual void _latch()         = 0;
+    virtual void _shift8(uint8_t data);
     void bufferShift_1(bool);
     void bufferShift_8(uint8_t);
-    void _shift(bool bit);
-    void _shift8(uint8_t data);
+    uint8_t *initBuffer(uint8_t byteNum);
+
+    shiftreg(uint8_t byteNum);
+    ~shiftreg();
 
   public:
     uint8_t *const Buffer; // Buffers,save the state of the registers,小端
-    const uint8_t Num;     // How many of 74HC595
-
-    hc595(nopin_size_t DS, nopin_size_t ST, nopin_size_t SH, uint8_t num = 1);
-    ~hc595();
-    void Begin(); // init driver pins
 
     void shift(bool bit);      // 向寄存器中输入1bit
     void shift8(uint8_t data); // 8 * shift ，高位先移
@@ -39,10 +37,10 @@ class hc595 : public _EVLK_NOPINS_::nopinRegister {
     PinStatus digitalRead(pin_size_t pin) override;         // NOTE: Read statue form Buffers
     void analogWrite(pin_size_t pin, int val) override;     // INFO: Same as digitalWrite
     int analogRead(pin_size_t pin) override;                // INFO: Same as digitalRead
-    void pinMode(pin_size_t pin, PinMode mode) override {}; // NOTE: NOT USE
-    void analogReference(uint8_t mode) override {};         // NOTE: NOT USE
+    void pinMode(pin_size_t pin, PinMode mode) override {}; // INFO: NOT WORK
+    void analogReference(uint8_t mode) override {};         // INFO: NOT WORK
 };
 
-}; // namespace _EVLK_74HC595_
+}; // namespace _EVLK_SHIFTREG_
 
 #endif
